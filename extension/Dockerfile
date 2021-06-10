@@ -1,0 +1,46 @@
+############################################################################
+#################### Dependency: batteryho/gpu-jupyter #####################
+############################################################################
+
+FROM batteryho/gpu-jupyter:10.1-cudnn7-devel-ubuntu18.04
+LABEL maintainer="Batteryhob <gorokke18@gmail.com>"
+
+############################################################################
+#################### Dependency: extension #################################
+############################################################################
+
+USER root
+
+RUN pip install --no-cache-dir ipyleaflet "plotly>=4.14.3" "ipywidgets>=7.5"
+
+# Install important packages and Graphviz
+RUN set -ex \
+ && buildDeps=' \
+    graphviz==0.11 \
+' \
+ && apt-get update \
+ && apt-get -y install htop apt-utils iputils-ping graphviz libgraphviz-dev openssh-client \
+ && pip install --no-cache-dir $buildDeps
+
+# Install various extensions
+RUN fix-permissions $CONDA_DIR
+# jupyterlab/github Does not support jlab 3.x yet, install well maintained alternative instead.
+# RUN jupyter labextension install @jupyterlab/github
+RUN pip install jupyterlab-git
+RUN pip install jupyterlab-drawio
+RUN jupyter nbextension enable --py --sys-prefix ipyleaflet
+RUN jupyter labextension install jupyterlab-plotly
+RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager plotlywidget
+# RUN pip install --no-cache-dir jupyter-tabnine  --user && \
+#   jupyter nbextension install --py jupyter_tabnine --user && \
+#   jupyter nbextension enable --py jupyter_tabnine --user && \
+#   jupyter serverextension enable --py jupyter_tabnine --user
+RUN pip install --no-cache-dir jupyter_contrib_nbextensions \
+  jupyter_nbextensions_configurator rise
+#  jupyter nbextension enable codefolding/main
+RUN jupyter labextension install @ijmbarr/jupyterlab_spellchecker
+
+RUN fix-permissions /home/$NB_USER
+
+# Switch back to jovyan to avoid accidental container runs as root
+USER $NB_UID
