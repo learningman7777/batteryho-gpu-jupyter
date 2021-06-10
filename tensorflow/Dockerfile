@@ -12,8 +12,10 @@ LABEL maintainer="Batteryhob <gorokke18@gmail.com>"
 LABEL maintainer="Jupyter Project <jupyter@googlegroups.com>"
 
 # Install Tensorflow
-RUN mamba install --quiet --yes \
-    'tensorflow=2.4.1' && \
-    mamba clean --all -f -y && \
-    fix-permissions "${CONDA_DIR}" && \
-    fix-permissions "/home/${NB_USER}"
+# RUN mamba install --quiet --yes \
+#     'tensorflow=2.3.0' && \
+#     mamba clean --all -f -y && \
+#     fix-permissions "${CONDA_DIR}" && \
+#     fix-permissions "/home/${NB_USER}"
+
+RUN pip install --user --upgrade tensorflow==2.3.0
