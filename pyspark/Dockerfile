@@ -67,6 +67,32 @@ USER ${NB_UID}
 #     fix-permissions "${CONDA_DIR}" && \
 #     fix-permissions "/home/${NB_USER}"
 
+# Custom by Batteryho
 RUN pip install pyarrow
 
+# Clean installation
+RUN fix-permissions /home/$NB_USER
+
 WORKDIR "${HOME}"
+
+############################################################################
+#################### Custom: batteryho-gpu-jupyter #########################
+############################################################################
+
+USER root
+
+# AWS Spark libraries
+ARG aws_java_sdk_version="1.11.327"
+# The versions of hadoop-common and hadoop-aws must be identical.
+ARG hadoop_aws_version="3.2.0"
+
+ENV AWS_JAVA_SDK_VERSION="${aws_java_sdk_version}" \
+    HADOOP_AWS_VERSION="${hadoop_aws_version}"
+
+RUN wget "https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/${AWS_JAVA_SDK_VERSION}/aws-java-sdk-${AWS_JAVA_SDK_VERSION}.jar" -P $SPARK_HOME/jars/
+RUN wget "https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/${HADOOP_AWS_VERSION}/hadoop-aws-${HADOOP_AWS_VERSION}.jar" -P $SPARK_HOME/jars/
+
+# Switch back to jovyan to avoid accidental container runs as root
+USER $NB_UID
+
+WORKDIR $HOME

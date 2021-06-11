@@ -18,4 +18,8 @@ LABEL maintainer="Jupyter Project <jupyter@googlegroups.com>"
 #     fix-permissions "${CONDA_DIR}" && \
 #     fix-permissions "/home/${NB_USER}"
 
+# Custom by Batteryho
 RUN pip install --user --upgrade tensorflow==2.3.0
+
+# Clean installation
+RUN fix-permissions /home/$NB_USER
