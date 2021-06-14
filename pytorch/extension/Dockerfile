@@ -2,7 +2,7 @@
 #################### Dependency: batteryho/gpu-jupyter #####################
 ############################################################################
 
-FROM batteryho/gpu-jupyter:10.1-cudnn7-devel-ubuntu18.04
+FROM batteryho/gpu-jupyter:10.1-cudnn7-devel-ubuntu18.04-pytorch
 LABEL maintainer="Batteryhob <gorokke18@gmail.com>"
 
 ############################################################################
