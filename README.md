@@ -87,6 +87,9 @@ hadoop-aws는 hadoop과 버전의 같아야 한다.
 
 [The versions of hadoop-common and hadoop-aws must be identical.](https://hadoop.apache.org/docs/stable/hadoop-aws/tools/hadoop-aws/index.html#:~:text=The%20versions%20of%20hadoop-common%20and%20hadoop-aws%20must%20be,dependencies%20unique%20to%20it%2C%20the%20AWS%20SDK%20JAR.)
 
+hadoop-aws는 aws-java-sdk-bundle에 dependency 버전을 찾아야 한다.
+[The versions of hadoop-common and hadoop-aws must be identical.](https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-aws/3.2.0)
+
 ``` Dockerfile
 RUN wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/1.12.1/aws-java-sdk-1.12.1.jar -P $SPARK_HOME/jars/
 RUN wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.2.0/hadoop-aws-3.2.0.jar -P $SPARK_HOME/jars/
@@ -124,10 +127,10 @@ base 이미지의 태그로 수정하고 빌드한다.
 
 ``` shell
 cd pytorch
-docker build -t batteryho/gpu-jupyter:10.1-cudnn7-devel-ubuntu18.04-pytorch .
+docker build -t batteryho/gpu-jupyter:11.0.3-cudnn8-devel-ubuntu20.04-pytorch .
 ```
 dockerhub에 푸쉬한다.
 
 ``` shell
-docker push batteryho/gpu-jupyter:10.1-cudnn7-devel-ubuntu18.04-pytorch
+docker push batteryho/gpu-jupyter:11.0.3-cudnn8-devel-ubuntu20.04-pytorch
 ```

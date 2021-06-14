@@ -1,78 +1,20 @@
 ############################################################################
-#################### Dependency: batteryho/gpu-jupyter #####################
-############################################################################
-
-FROM batteryho/gpu-jupyter:11.0.3-cudnn8-devel-ubuntu20.04-base
-LABEL maintainer="Batteryhob <gorokke18@gmail.com>"
-
-############################################################################
 #################### Dependency: pyspark-notebook ##########################
 ############################################################################
 
-LABEL maintainer="Jupyter Project <jupyter@googlegroups.com>"
+FROM jupyter/pyspark-notebook:ubuntu-20.04
+LABEL maintainer="Batteryhob <gorokke18@gmail.com>"
 
-# Fix DL4006
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+############################################################################
+#################### Dependency: aws-sdk ###################################
+############################################################################
 
 USER root
 
-# Spark dependencies
-# Default values can be overridden at build time
-# (ARGS are in lower case to distinguish them from ENV)
-ARG spark_version="3.1.2"
-ARG hadoop_version="3.2"
-ARG spark_checksum="2385CB772F21B014CE2ABD6B8F5E815721580D6E8BC42A26D70BBCDDA8D303D886A6F12B36D40F6971B5547B70FAE62B5A96146F0421CB93D4E51491308EF5D5"
-ARG openjdk_version="11"
-
-ENV APACHE_SPARK_VERSION="${spark_version}" \
-    HADOOP_VERSION="${hadoop_version}"
-
-RUN apt-get update --yes && \
-    apt-get install --yes --no-install-recommends \
-    "openjdk-${openjdk_version}-jre-headless" \
-    ca-certificates-java && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Spark installation
-WORKDIR /tmp
-RUN wget -q "https://archive.apache.org/dist/spark/spark-${APACHE_SPARK_VERSION}/spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" && \
-    echo "${spark_checksum} *spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" | sha512sum -c - && \
-    tar xzf "spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" -C /usr/local --owner root --group root --no-same-owner && \
-    rm "spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz"
-
-WORKDIR /usr/local
-
-# Configure Spark
-ENV SPARK_HOME=/usr/local/spark
-ENV SPARK_OPTS="--driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info" \
-    PATH="${PATH}:${SPARK_HOME}/bin"
-
-RUN ln -s "spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}" spark && \
-    # Add a link in the before_notebook hook in order to source automatically PYTHONPATH
-    mkdir -p /usr/local/bin/before-notebook.d && \
-    ln -s "${SPARK_HOME}/sbin/spark-config.sh" /usr/local/bin/before-notebook.d/spark-config.sh
-
-# Fix Spark installation for Java 11 and Apache Arrow library
-# see: https://github.com/apache/spark/pull/27356, https://spark.apache.org/docs/latest/#downloading
-RUN cp -p "${SPARK_HOME}/conf/spark-defaults.conf.template" "${SPARK_HOME}/conf/spark-defaults.conf" && \
-    echo 'spark.driver.extraJavaOptions -Dio.netty.tryReflectionSetAccessible=true' >> "${SPARK_HOME}/conf/spark-defaults.conf" && \
-    echo 'spark.executor.extraJavaOptions -Dio.netty.tryReflectionSetAccessible=true' >> "${SPARK_HOME}/conf/spark-defaults.conf"
-
-USER ${NB_UID}
-
-# Install pyarrow
-RUN mamba install --quiet --yes \
-    'pyarrow=4.0.*' && \
-    mamba clean --all -f -y && \
-    fix-permissions "${CONDA_DIR}" && \
-    fix-permissions "/home/${NB_USER}"
-
-WORKDIR "${HOME}"
-
+# hadoop version: 3.2 (https://hub.docker.com/layers/jupyter/pyspark-notebook/ubuntu-20.04/images/sha256-f95e3818d78d2c096764a69887119cc793cf653d803d498d464693481cec787a?context=explore)
+# aws-java-sdk version: 1.11.375 (https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-aws/3.2.0)
 # Install aws-sdk
-USER root
-
-RUN wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/1.12.1/aws-java-sdk-1.12.1.jar -P $SPARK_HOME/jars/
+RUN wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/1.11.375/aws-java-sdk-1.11.375.jar -P $SPARK_HOME/jars/
 RUN wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.2.0/hadoop-aws-3.2.0.jar -P $SPARK_HOME/jars/
 
 USER ${NB_UID}

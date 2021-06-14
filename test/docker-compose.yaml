@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+    nginx: 
+        build:
+            context: ./nginx
+            dockerfile: ./Dockerfile
+        ports: 
+            - "8888:80"
+    jupyter:
+        image: batteryho/pyspark-jupyter:ubuntu20.04-pyspark-aws
+        volumes:
+            - ./work://home/jovyan/work
+            - ./config/jupyter_notebook_config.py://home/jovyan/.jupyter/jupyter_notebook_config.py
