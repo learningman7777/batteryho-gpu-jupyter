@@ -2,7 +2,7 @@
 #################### Dependency: batteryho/gpu-jupyter #####################
 ############################################################################
 
-FROM batteryho/gpu-jupyter:10.1-cudnn7-devel-ubuntu18.04
+FROM batteryho/gpu-jupyter:11.0.3-cudnn8-devel-ubuntu20.04-base
 LABEL maintainer="Batteryhob <gorokke18@gmail.com>"
 
 ############################################################################
@@ -61,38 +61,18 @@ RUN cp -p "${SPARK_HOME}/conf/spark-defaults.conf.template" "${SPARK_HOME}/conf/
 USER ${NB_UID}
 
 # Install pyarrow
-# RUN conda install --quiet --yes --satisfied-skip-solve \
-#     'pyarrow=4.0.*' && \
-#     conda clean --all -f -y && \
-#     fix-permissions "${CONDA_DIR}" && \
-#     fix-permissions "/home/${NB_USER}"
-
-# Custom by Batteryho
-RUN pip install pyarrow
-
-# Clean installation
-RUN fix-permissions /home/$NB_USER
+RUN mamba install --quiet --yes \
+    'pyarrow=4.0.*' && \
+    mamba clean --all -f -y && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 
 WORKDIR "${HOME}"
 
-############################################################################
-#################### Custom: batteryho-gpu-jupyter #########################
-############################################################################
-
+# Install aws-sdk
 USER root
 
-# AWS Spark libraries
-ARG aws_java_sdk_version="1.11.327"
-# The versions of hadoop-common and hadoop-aws must be identical.
-ARG hadoop_aws_version="3.2.0"
+RUN wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/1.12.1/aws-java-sdk-1.12.1.jar -P $SPARK_HOME/jars/
+RUN wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.2.0/hadoop-aws-3.2.0.jar -P $SPARK_HOME/jars/
 
-ENV AWS_JAVA_SDK_VERSION="${aws_java_sdk_version}" \
-    HADOOP_AWS_VERSION="${hadoop_aws_version}"
-
-RUN wget "https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/${AWS_JAVA_SDK_VERSION}/aws-java-sdk-${AWS_JAVA_SDK_VERSION}.jar" -P $SPARK_HOME/jars/
-RUN wget "https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/${HADOOP_AWS_VERSION}/hadoop-aws-${HADOOP_AWS_VERSION}.jar" -P $SPARK_HOME/jars/
-
-# Switch back to jovyan to avoid accidental container runs as root
-USER $NB_UID
-
-WORKDIR $HOME
+USER ${NB_UID}

@@ -2,7 +2,7 @@
 #################### Dependency: batteryho/gpu-jupyter #####################
 ############################################################################
 
-FROM batteryho/gpu-jupyter:10.1-cudnn7-devel-ubuntu18.04-pytorch
+FROM batteryho/gpu-jupyter:10.1-cudnn7-devel-ubuntu18.04-tensorflow
 LABEL maintainer="Batteryhob <gorokke18@gmail.com>"
 
 ############################################################################
@@ -44,3 +44,6 @@ RUN fix-permissions /home/$NB_USER
 
 # Switch back to jovyan to avoid accidental container runs as root
 USER $NB_UID
+
+# Copy jupyter_notebook_config.json
+COPY jupyter_notebook_config.json /etc/jupyter/

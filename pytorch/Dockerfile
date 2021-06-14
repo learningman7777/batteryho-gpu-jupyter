@@ -2,23 +2,21 @@
 #################### Dependency: batteryho/gpu-jupyter #####################
 ############################################################################
 
-FROM batteryho/gpu-jupyter:10.1-cudnn7-devel-ubuntu18.04
+FROM batteryho/gpu-jupyter:11.0.3-cudnn8-devel-ubuntu20.04-base
 LABEL maintainer="Batteryhob <gorokke18@gmail.com>"
 
 ############################################################################
 #################### Dependency: pytorch ###################################
 ############################################################################
 
-# Install PyTorch with dependencies
-RUN conda install --quiet --yes \
-    pyyaml mkl mkl-include setuptools cmake cffi typing
+# Upgrade pip
+RUN pip install --upgrade pip
 
-# Check compatibility here:
-# https://pytorch.org/get-started/locally/
-# Installation via conda leads to errors installing cudatoolkit=10.1
-RUN pip install torch torchvision torchaudio torchviz
+# Install pytorch
+RUN pip install torch==1.8.1+cu111 torchvision==0.9.1+cu111 torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
 
-# Clean installation
-RUN conda clean --all -f -y && \
-    fix-permissions $CONDA_DIR && \
-    fix-permissions /home/$NB_USER
+# Install libs
+RUN pip install opencv-python \
+    imageio \
+    imageio-ffmpeg \
+    pycocotools>=2.9.2
