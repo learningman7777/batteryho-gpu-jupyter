@@ -91,7 +91,7 @@ hadoop-aws는 aws-java-sdk-bundle에 dependency 버전을 찾아야 한다.
 [The versions of hadoop-common and hadoop-aws must be identical.](https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-aws/3.2.0)
 
 ``` Dockerfile
-RUN wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/1.12.1/aws-java-sdk-1.12.1.jar -P $SPARK_HOME/jars/
+RUN wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.375/aws-java-sdk-bundle-1.11.375.jar -P $SPARK_HOME/jars/
 RUN wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.2.0/hadoop-aws-3.2.0.jar -P $SPARK_HOME/jars/
 ```
 

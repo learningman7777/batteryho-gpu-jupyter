@@ -8,7 +8,10 @@ services:
         ports: 
             - "8888:80"
     jupyter:
-        image: batteryho/pyspark-jupyter:ubuntu20.04-pyspark-aws
+        # image: batteryho/pyspark-jupyter:ubuntu20.04-pyspark-aws
+        build:
+            context: .
+            dockerfile: Dockerfile        
         volumes:
             - ./work://home/jovyan/work
             - ./config/jupyter_notebook_config.py://home/jovyan/.jupyter/jupyter_notebook_config.py
